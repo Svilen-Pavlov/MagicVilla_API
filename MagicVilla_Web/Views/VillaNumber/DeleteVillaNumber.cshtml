@@ -1,32 +1,27 @@
-﻿@using MagicVilla_Web.Models.DTO;
-@model VillaNumberDTO
+﻿@using MagicVilla_Web.Models.ViewModels;
+@model VillaNumberDeleteVM
 
 <form asp-action="DeleteVillaNumber">
     <br />
     <div class="container border p-3">
         <h1 class="text-primary">Delete Villa</h1>
         <hr/>
-        <input hidden asp-for="VillaNo" />
+        <input hidden asp-for="@Model.VillaNumber.VillaNo" />
  
         <div class="row">
             <div class="col-2">
-                <label asp-for="VillaId" class="control-label pt-2" style="font-size:20px;"></label>
+                <label asp-for="@Model.VillaNumber.VillaId" class="control-label pt-2" style="font-size:20px;"></label>
             </div>
             <div class="col-10 pb-3">
-                <input asp-for="VillaId" disabled class="form-control">
+                <input asp-for="@Model.VillaNumber.VillaId" disabled class="form-control">
             </div>
 
             <div class="col-2">
-                <label asp-for="SpecialDetails" class="control-label pt-2" style="font-size:20px;"></label>
+                <label asp-for="@Model.VillaNumber.SpecialDetails" class="control-label pt-2" style="font-size:20px;"></label>
             </div>
             <div class="col-10 pb-3">
-                <input asp-for="SpecialDetails" disabled class="form-control">
+                <input asp-for="@Model.VillaNumber.SpecialDetails" disabled class="form-control">
             </div>
-
-       
-
- 
-
             <div class="col-5 offset-2">
                 <a asp-action="IndexVillaNumber" asp-controller="VillaNumber" class="btn-primary btn form-control ">Back to List</a>
             </div>

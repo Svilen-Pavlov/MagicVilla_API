@@ -59,6 +59,7 @@ namespace MagicVilla_Web.Controllers
                 var response = await _villaNumberService.CreateAsync<APIResponse>(model.VillaNumber);
                 if (response.IsSuccess && response.Result != null)
                 {
+                    TempData["success"] = "VillaNumber created succesfully";
                     return RedirectToAction(nameof(IndexVillaNumber));
                 }
                 else
@@ -81,10 +82,12 @@ namespace MagicVilla_Web.Controllers
                     Value = x.Id.ToString()
                 });
             }
+
+            TempData["error"] = "Error encountered";
             return View(model);
         }
 
-        public async Task<IActionResult> UpdateVillaNumber(int villaNo) //this should be villaNo IMO
+        public async Task<IActionResult> UpdateVillaNumber(int villaNo) 
         {
             VillaNumberUpdateVM villaNumberVM = new();
             var response = await _villaNumberService.GetAsync<APIResponse>(villaNo);
@@ -116,6 +119,7 @@ namespace MagicVilla_Web.Controllers
                 var response = await _villaNumberService.UpdateAsync<APIResponse>(model.VillaNumber);
                 if (response.IsSuccess && response.Result != null)
                 {
+                    TempData["success"] = "VillaNumber updated succesfully";
                     return RedirectToAction(nameof(IndexVillaNumber));
                 }
                 else
@@ -138,6 +142,8 @@ namespace MagicVilla_Web.Controllers
                     Value = x.Id.ToString()
                 });
             }
+
+            TempData["error"] = "Error encountered";
             return View(model);
         }
 
@@ -170,8 +176,11 @@ namespace MagicVilla_Web.Controllers
             var response = await _villaNumberService.DeleteAsync<APIResponse>(model.VillaNumber.VillaNo);
             if (response.IsSuccess && response != null)
             {
+                TempData["success"] = "VillaNumber deleted succesfully";
                 return RedirectToAction(nameof(IndexVillaNumber));
             }
+
+            TempData["error"] = "Error encountered";
             return View(model);
         }
     }

@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.RateLimiting;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace MagicVilla_Web.Models.DTO
 {
     public class VillaNumberCreateDTO
     {
+        [DefaultValue(15)]
         [Required]
         public int VillaNo { get; set; }
         [Required]

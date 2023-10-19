@@ -88,6 +88,11 @@ namespace MagicVilla_VillaAPI.Controllers
         {
             try
             {
+                if (createDTO.VillaNo==0) //not done by instructor
+                {
+                    ModelState.AddModelError("ErrorMessages", "VillaNumber cannot be \"0\"");
+                    return BadRequest(ModelState);
+                }
                 if (await _dbVillaNumbers.GetAsync(x => x.VillaNo == createDTO.VillaNo) != null)
                 {
                     ModelState.AddModelError("ErrorMessages", "VillaNumber already exists!");
