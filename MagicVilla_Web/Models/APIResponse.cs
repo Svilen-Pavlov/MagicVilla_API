@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Transactions;
 
-namespace MagicVilla_VillaAPI.Models
+namespace MagicVilla_Web.Models
 {
     public class APIResponse
     {

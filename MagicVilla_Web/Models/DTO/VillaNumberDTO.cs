@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.RateLimiting;
 using System.ComponentModel.DataAnnotations;
 
-namespace MagicVilla_VillaAPI.Models.DTO
+namespace MagicVilla_Web.Models.DTO
 {
     public class VillaNumberDTO
     {
@@ -10,6 +10,7 @@ namespace MagicVilla_VillaAPI.Models.DTO
         [Required]
         public int VillaId { get; set; }
         public string SpecialDetails { get; set; }
+        public VillaDTO Villa { get; set; }
     }
 }
 

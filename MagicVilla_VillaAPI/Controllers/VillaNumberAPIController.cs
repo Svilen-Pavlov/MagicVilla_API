@@ -30,7 +30,7 @@ namespace MagicVilla_VillaAPI.Controllers
         {
             try
             {
-                IEnumerable<VillaNumber> villaNumberList = await _dbVillaNumbers.GetAllAsync();
+                IEnumerable<VillaNumber> villaNumberList = await _dbVillaNumbers.GetAllAsync(includeProperties:"Villa");
                 _response.Result = _mapper.Map<List<VillaNumberDTO>>(villaNumberList);
                 _response.StatusCode = System.Net.HttpStatusCode.OK;
 
@@ -90,11 +90,11 @@ namespace MagicVilla_VillaAPI.Controllers
             {
                 if (await _dbVillaNumbers.GetAsync(x => x.VillaNo == createDTO.VillaNo) != null)
                 {
-                    ModelState.AddModelError("CustomError", "Villa Number already exists!");
+                    ModelState.AddModelError("ErrorMessages", "VillaNumber already exists!");
                     return BadRequest(ModelState);
                 }
 
-                if (createDTO == null)
+                if (createDTO == null) // empty data DTO
                 {
                     _response.StatusCode = System.Net.HttpStatusCode.BadRequest;
                     _response.Result = createDTO; // not done by instructor
@@ -103,7 +103,7 @@ namespace MagicVilla_VillaAPI.Controllers
 
                 if (await _dbVillas.GetAsync(x => createDTO.VillaId == x.Id) == null)
                 {
-                    ModelState.AddModelError("CustomError", "Villa ID is invalid");
+                    ModelState.AddModelError("ErrorMessages", "Villa ID is invalid");
                     return BadRequest(ModelState);
                 }
 
@@ -180,7 +180,7 @@ namespace MagicVilla_VillaAPI.Controllers
 
                 if (await _dbVillas.GetAsync(x => updateDTO.VillaId == x.Id) == null)
                 {
-                    ModelState.AddModelError("CustomError", "Villa ID is invalid");
+                    ModelState.AddModelError("ErrorMessages", "Villa ID is invalid");
                     return BadRequest(ModelState);
                 }
 

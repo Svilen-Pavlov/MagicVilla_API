@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.RateLimiting;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MagicVilla_VillaAPI.Models.DTO
 {
@@ -8,7 +7,7 @@ namespace MagicVilla_VillaAPI.Models.DTO
         [Required]
         [MaxLength(30)]
         public string Name { get; set; }
-        public string Details { get; set; }
+        public string? Details { get; set; }
         [Required]
         public double Rate { get; set; }
         public int Occupancy { get; set; }
