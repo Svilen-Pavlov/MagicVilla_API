@@ -56,7 +56,7 @@ namespace MagicVilla_VillaAPI.Repository
             {
                 Subject = new System.Security.Claims.ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, user.Id.ToString()),
+                    new Claim(ClaimTypes.Name, user.UserName.ToString()),
                     new Claim(ClaimTypes.Role, user.Role)
                 }), // all token claims
                 Expires = DateTime.Now.Date.AddDays(7), // expiration date

@@ -1,4 +1,5 @@
 
+using MagicVilla_Utility;
 using MagicVilla_VillaAPI;
 using MagicVilla_VillaAPI.Data;
 using MagicVilla_VillaAPI.Repository;
@@ -17,6 +18,7 @@ builder.Services.AddAuthentication(authOptions =>
 {
     authOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     authOptions.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    authOptions.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme; // remove
 }).AddJwtBearer(bearerOpt =>
     {
         bearerOpt.RequireHttpsMetadata = false;
@@ -41,7 +43,7 @@ builder.Services.AddControllers(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options=>
 {
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.AddSecurityDefinition(StaticDetails.JWTAuthenticationTokenHeaderName, new OpenApiSecurityScheme
     {
         Description = //a user explanation on how to use the below 3 configs
             "JWT Authorization header using the Bearer scheme. \r\n\r\n " +
@@ -49,7 +51,7 @@ builder.Services.AddSwaggerGen(options=>
             "Example: \"Bearer 12345abcdef\"",
         Name = "Authorization", // the API request header key name to be used
         In = ParameterLocation.Header, //configures the location of the parameters name and scheme. In this case the request Header
-        Scheme = "Bearer" // the API request header value name to be used before pasting the token string
+        Scheme = StaticDetails.JWTAuthenticationTokenHeaderName // "Bearer". the API request header value name to be used before pasting the token string
     });
     options.AddSecurityRequirement(new OpenApiSecurityRequirement()
     {

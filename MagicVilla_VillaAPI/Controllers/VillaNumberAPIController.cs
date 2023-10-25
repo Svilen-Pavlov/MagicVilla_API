@@ -2,9 +2,11 @@
 using MagicVilla_VillaAPI.Models;
 using MagicVilla_VillaAPI.Models.DTO;
 using MagicVilla_VillaAPI.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace MagicVilla_VillaAPI.Controllers
 {
@@ -78,7 +80,7 @@ namespace MagicVilla_VillaAPI.Controllers
             return _response;
         }
 
-
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -129,10 +131,10 @@ namespace MagicVilla_VillaAPI.Controllers
             return _response;
         }
 
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-
         [HttpDelete("{id:int}", Name = "DeleteVillaNumber")]
         public async Task<ActionResult<APIResponse>> DeleteVilla(int id)
         {
@@ -162,9 +164,9 @@ namespace MagicVilla_VillaAPI.Controllers
             return _response;
         }
 
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-
         [HttpPut("{id:int}", Name = "UpdateVillaNumber")]
         public async Task<ActionResult<APIResponse>> UpdateVillaNumber(int id, [FromBody] VillaNumberUpdateDTO updateDTO)
         {
@@ -204,6 +206,7 @@ namespace MagicVilla_VillaAPI.Controllers
             }
             return _response;
         }
+
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

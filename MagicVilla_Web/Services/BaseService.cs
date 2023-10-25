@@ -2,6 +2,7 @@
 using MagicVilla_Web.Models;
 using MagicVilla_Web.Services.IServices;
 using Newtonsoft.Json;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace MagicVilla_Web.Services
@@ -47,6 +48,12 @@ namespace MagicVilla_Web.Services
                 }
 
                 HttpResponseMessage apiResponse = null;
+
+                if (!string.IsNullOrEmpty(apiRequest.Token))
+                {
+                    client.DefaultRequestHeaders.Authorization = 
+                        new AuthenticationHeaderValue(StaticDetails.JWTAuthenticationTokenHeaderName, apiRequest.Token); // first param = "Bearer"
+                }
                 apiResponse = await client.SendAsync(message); // Send and receive response
                 var apiContent = await apiResponse.Content.ReadAsStringAsync(); // HttpResponseMessage > string (JSON formatted)
                 var responseCode = apiResponse.StatusCode; // I believe this should be here instead of what lector used below in the IF

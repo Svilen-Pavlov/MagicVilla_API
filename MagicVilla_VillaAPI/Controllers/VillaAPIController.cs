@@ -24,7 +24,7 @@ namespace MagicVilla_VillaAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize] //no params since all users should be able to see all villas
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<APIResponse>> GetVillas() // All villas
         {
@@ -45,7 +45,7 @@ namespace MagicVilla_VillaAPI.Controllers
         }
 
         [HttpGet("{id:int}", Name = "GetVilla")]
-        [Authorize(Roles = "admin")] //admin role
+ 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -83,7 +83,7 @@ namespace MagicVilla_VillaAPI.Controllers
 
 
         [HttpPost]
-        [Authorize(Roles = "admin")] //admin role
+        [Authorize(Roles = "admin")] 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -126,7 +126,7 @@ namespace MagicVilla_VillaAPI.Controllers
         }
 
         [HttpDelete("{id:int}", Name = "DeleteVilla")]
-        [Authorize(Roles = "CUSTOM")] //non-existant role so no users can delete
+        [Authorize(Roles = "admin")] //non-existant role so no users can delete
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -161,6 +161,7 @@ namespace MagicVilla_VillaAPI.Controllers
         }
 
         [HttpPut("{id:int}", Name = "UpdateVilla")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -200,6 +201,7 @@ namespace MagicVilla_VillaAPI.Controllers
         }
 
         [HttpPatch("{id:int}", Name = "UpdatePartialVilla")]
+        [Authorize(Roles = "admin")] 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

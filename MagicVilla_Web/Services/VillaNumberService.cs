@@ -14,49 +14,54 @@ namespace MagicVilla_Web.Services.IServices
             _clientFactory = clientFactory;
             _villaUrl = configuration.GetValue<string>("ServiceUrls:VillaAPI");
         }
-        public Task<T> GetAsync<T>()
+        public Task<T> GetAsync<T>(string token)
         {
             return SendAsync<T>(new APIRequest
             {
                 Url = _villaUrl + apiURLRoutePrefix,
                 ApiType = StaticDetails.ApiType.GET,
+                Token = token
             });
         }
 
-        public Task<T> GetAsync<T>(int id)
+        public Task<T> GetAsync<T>(int id, string token)
         {
             return SendAsync<T>(new APIRequest
             {
                 Url = _villaUrl + apiURLRoutePrefix + id,
                 ApiType = StaticDetails.ApiType.GET,
+                Token = token
             });
         }
-        public Task<T> CreateAsync<T>(VillaNumberCreateDTO dto)
+        public Task<T> CreateAsync<T>(VillaNumberCreateDTO dto, string token)
         {
             return SendAsync<T>(new APIRequest
             {
                 Url = _villaUrl + apiURLRoutePrefix,
                 ApiType = StaticDetails.ApiType.POST,
-                Data = dto
+                Data = dto,
+                Token = token
             });
         }
 
-        public Task<T> DeleteAsync<T>(int id)
+        public Task<T> DeleteAsync<T>(int id, string token)
         {
             return SendAsync<T>(new APIRequest
             {
                 Url = _villaUrl + apiURLRoutePrefix + id,
                 ApiType = StaticDetails.ApiType.DELETE,
+                Token = token
             });
         }
 
-        public Task<T> UpdateAsync<T>(VillaNumberUpdateDTO dto)
+        public Task<T> UpdateAsync<T>(VillaNumberUpdateDTO dto, string token)
         {
             return SendAsync<T>(new APIRequest
             {
                 Url = _villaUrl + apiURLRoutePrefix + dto.VillaNo,
                 ApiType = StaticDetails.ApiType.PUT,
-                Data = dto
+                Data = dto,
+                Token = token
             });
         }
     }
