@@ -52,7 +52,7 @@ namespace MagicVilla_Web.Services
                 if (!string.IsNullOrEmpty(apiRequest.Token))
                 {
                     client.DefaultRequestHeaders.Authorization = 
-                        new AuthenticationHeaderValue(StaticDetails.JWTAuthenticationTokenHeaderName, apiRequest.Token); // first param = "Bearer"
+                        new AuthenticationHeaderValue(StaticDetails.JWTAuthenticationHeaderName, apiRequest.Token); // first param = "Bearer"
                 }
                 apiResponse = await client.SendAsync(message); // Send and receive response
                 var apiContent = await apiResponse.Content.ReadAsStringAsync(); // HttpResponseMessage > string (JSON formatted)
@@ -60,8 +60,8 @@ namespace MagicVilla_Web.Services
                 try // if APIContent is of type APIContent
                 {
                     APIResponse deserializedAPIResponse = JsonConvert.DeserializeObject<APIResponse>(apiContent); // string to APIResponse type
-                    if (responseCode == System.Net.HttpStatusCode.BadRequest ||
-                        responseCode == System.Net.HttpStatusCode.NotFound) //lector said this should be checking deserializedAPIResponse but it is stripped of the responseCode if erronous
+                    if (deserializedAPIResponse != null &&
+                        (responseCode == System.Net.HttpStatusCode.BadRequest || responseCode == System.Net.HttpStatusCode.NotFound)) //lector said this should be checking deserializedAPIResponse but it is stripped of the responseCode if erronous
                     {
                         deserializedAPIResponse.StatusCode = System.Net.HttpStatusCode.BadRequest;
                         deserializedAPIResponse.IsSuccess = false;
@@ -76,6 +76,7 @@ namespace MagicVilla_Web.Services
                     var deserializedGenericResponse = JsonConvert.DeserializeObject<T>(apiContent); // JSON format to APIResponse type
                     return deserializedGenericResponse;
                 }
+                
                 var deserializedResponse = JsonConvert.DeserializeObject<T>(apiContent); // JSON format to APIResponse type
                 return deserializedResponse;
             }

@@ -8,7 +8,7 @@ namespace MagicVilla_Web.Services.IServices
     {
         private readonly IHttpClientFactory _clientFactory;
         private string _villaUrl;
-        private static string apiURLRoutePrefix = "/api/VillaNumberAPI/";
+        private static string apiURLRoutePrefix = "/api/v1/VillaNumberAPI/";
         public VillaNumberService(IHttpClientFactory clientFactory, IConfiguration configuration) : base(clientFactory)
         {
             _clientFactory = clientFactory;

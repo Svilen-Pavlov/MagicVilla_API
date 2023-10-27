@@ -10,6 +10,6 @@
             DELETE
         }
         public static string SessionToken = "JWTToken";
-        public static string JWTAuthenticationTokenHeaderName= "Bearer";
+        public static string JWTAuthenticationHeaderName= "Bearer";
     }
 }

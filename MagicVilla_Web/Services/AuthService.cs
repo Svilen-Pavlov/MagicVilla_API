@@ -9,7 +9,7 @@ namespace MagicVilla_Web.Services
     {
         private readonly IHttpClientFactory _clientFactory;
         private string _authUrl;
-        private static string apiURLRoutePrefix = "/api/UsersAuth";
+        private static string apiURLRoutePrefix = "/api/v1/UsersAuth";
         public AuthService(IHttpClientFactory clientFactory, IConfiguration configuration) : base(clientFactory)
         {
             _clientFactory = clientFactory;

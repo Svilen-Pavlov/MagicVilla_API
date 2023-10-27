@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Asp.Versioning;
+using AutoMapper;
 using MagicVilla_VillaAPI.Models;
 using MagicVilla_VillaAPI.Models.DTO;
 using MagicVilla_VillaAPI.Repository.IRepository;
@@ -6,32 +7,40 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MagicVilla_VillaAPI.Controllers
+namespace MagicVilla_VillaAPI.Controllers.v1
 {
-    [Route("api/VillaAPI")]
+    [Route("api/v{version:apiVersion}/VillaNumberAPI")]
     [ApiController]
-    public class VillaAPIController : ControllerBase
+    [ApiVersion("1.0")]
+    public class VillaNumberAPIController : ControllerBase
     {
         protected APIResponse _response;
+        private readonly IVillaNumberRepository _dbVillaNumbers;
         private readonly IVillaRepository _dbVillas;
         private readonly IMapper _mapper;
 
-        public VillaAPIController(IVillaRepository dbVilla, IMapper mapper)
+        public VillaNumberAPIController(IVillaNumberRepository dbVilla, IMapper mapper, IVillaRepository dbVillas)
         {
-            _dbVillas = dbVilla;
+            _dbVillaNumbers = dbVilla;
+            _dbVillas = dbVillas;
             _mapper = mapper;
             _response = new();
         }
+        
+        [HttpGet("GetString")]
+        public IEnumerable<string> Get()
+        {
+            return new string[] { "VERSION 1", "VERSION 1 , 2" };
+        }
 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<APIResponse>> GetVillas() // All villas
+        //[MapToApiVersion("1.0")]
+        public async Task<ActionResult<APIResponse>> GetVillaNumbers()
         {
             try
             {
-                IEnumerable<Villa> villaList = await _dbVillas.GetAllAsync();
-                _response.Result = _mapper.Map<List<VillaDTO>>(villaList);
+                IEnumerable<VillaNumber> villaNumberList = await _dbVillaNumbers.GetAllAsync(includeProperties: "Villa");
+                _response.Result = _mapper.Map<List<VillaNumberDTO>>(villaNumberList);
                 _response.StatusCode = System.Net.HttpStatusCode.OK;
 
                 return Ok(_response);
@@ -44,14 +53,11 @@ namespace MagicVilla_VillaAPI.Controllers
             return _response;
         }
 
-        [HttpGet("{id:int}", Name = "GetVilla")]
- 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> GetVilla(int id) // Get Individual Villa
+        [HttpGet("{id:int}", Name = "GetVillaNumber")]
+        public async Task<ActionResult<APIResponse>> GetVillaNumber(int id)
         {
             try
             {
@@ -61,14 +67,14 @@ namespace MagicVilla_VillaAPI.Controllers
                     return BadRequest(_response);
                 }
 
-                var villa = await _dbVillas.GetAsync(x => x.Id == id);
-                if (villa == null)
+                var villaNumber = await _dbVillaNumbers.GetAsync(x => x.VillaNo == id);
+                if (villaNumber == null)
                 {
                     _response.StatusCode = System.Net.HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
 
-                _response.Result = _mapper.Map<VillaDTO>(villa);
+                _response.Result = _mapper.Map<VillaNumberDTO>(villaNumber);
                 _response.StatusCode = System.Net.HttpStatusCode.OK;
 
                 return Ok(_response);
@@ -81,41 +87,48 @@ namespace MagicVilla_VillaAPI.Controllers
             return _response;
         }
 
-
-        [HttpPost]
-        [Authorize(Roles = "admin")] 
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-
-        public async Task<ActionResult<APIResponse>> CreateVilla([FromBody] VillaCreateDTO createDTO)
+        [HttpPost]
+        public async Task<ActionResult<APIResponse>> CreateVillaNumber([FromBody] VillaNumberCreateDTO createDTO)
         {
             try
             {
-                if (await _dbVillas.GetAsync(x => x.Name.ToLower() == createDTO.Name.ToLower()) != null)
+                if (createDTO.VillaNo == 0) //not done by instructor
                 {
-                    ModelState.AddModelError("ErrorMessages", "Villa already exists!");
+                    ModelState.AddModelError("ErrorMessages", "VillaNumber cannot be \"0\"");
+                    return BadRequest(ModelState);
+                }
+                if (await _dbVillaNumbers.GetAsync(x => x.VillaNo == createDTO.VillaNo) != null)
+                {
+                    ModelState.AddModelError("ErrorMessages", "VillaNumber already exists!");
                     return BadRequest(ModelState);
                 }
 
-                if (createDTO == null)
+                if (createDTO == null) // empty data DTO
                 {
                     _response.StatusCode = System.Net.HttpStatusCode.BadRequest;
                     _response.Result = createDTO; // not done by instructor
                     return BadRequest(_response);
                 }
 
-                Villa villa = _mapper.Map<Villa>(createDTO);
+                if (await _dbVillas.GetAsync(x => createDTO.VillaId == x.Id) == null)
+                {
+                    ModelState.AddModelError("ErrorMessages", "Villa ID is invalid");
+                    return BadRequest(ModelState);
+                }
 
-                await _dbVillas.CreateAsync(villa);
+                VillaNumber villaNumber = _mapper.Map<VillaNumber>(createDTO);
+                await _dbVillaNumbers.CreateAsync(villaNumber);
 
-                _response.Result = _mapper.Map<VillaDTO>(villa);
+
+                _response.Result = _mapper.Map<VillaNumberDTO>(villaNumber);
                 _response.StatusCode = System.Net.HttpStatusCode.Created;
 
-                return CreatedAtRoute("GetVilla", new { id = villa.Id }, (_response));
+                return CreatedAtRoute("GetVillaNumber", new { id = villaNumber.VillaNo }, _response);
             }
             catch (Exception ex)
             {
@@ -125,13 +138,11 @@ namespace MagicVilla_VillaAPI.Controllers
             return _response;
         }
 
-        [HttpDelete("{id:int}", Name = "DeleteVilla")]
-        [Authorize(Roles = "admin")] //non-existant role so no users can delete
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpDelete("{id:int}", Name = "DeleteVillaNumber")]
         public async Task<ActionResult<APIResponse>> DeleteVilla(int id)
         {
             try
@@ -141,13 +152,13 @@ namespace MagicVilla_VillaAPI.Controllers
                     _response.StatusCode = System.Net.HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var villa = await _dbVillas.GetAsync(x => x.Id == id);
-                if (villa == null)
+                var villaNumber = await _dbVillaNumbers.GetAsync(x => x.VillaNo == id);
+                if (villaNumber == null)
                 {
                     _response.StatusCode = System.Net.HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
-                await _dbVillas.RemoveAsync(villa);
+                await _dbVillaNumbers.RemoveAsync(villaNumber);
                 _response.StatusCode = System.Net.HttpStatusCode.OK;
 
                 return Ok(_response);
@@ -160,33 +171,36 @@ namespace MagicVilla_VillaAPI.Controllers
             return _response;
         }
 
-        [HttpPut("{id:int}", Name = "UpdateVilla")]
         [Authorize(Roles = "admin")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> UpdateVilla(int id, [FromBody] VillaUpdateDTO updateDTO)
+        [HttpPut("{id:int}", Name = "UpdateVillaNumber")]
+        public async Task<ActionResult<APIResponse>> UpdateVillaNumber(int id, [FromBody] VillaNumberUpdateDTO updateDTO)
         {
             try
             {
-                if (id <= 0 || updateDTO.Id != id)
+                if (id <= 0 || updateDTO.VillaNo != id)
                 {
                     _response.StatusCode = System.Net.HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
 
-                var model = await _dbVillas.GetAsync(x => x.Id == id, false); // no tracking since the tracker will throw an error due reinstantiate the object from tracker later
+                var model = await _dbVillaNumbers.GetAsync(x => x.VillaNo == id, false); // no tracking since the tracker will throw an error due reinstantiate the object from tracker later
                 if (model == null)
                 {
                     _response.StatusCode = System.Net.HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
 
-                model = _mapper.Map<Villa>(updateDTO); // when this is done object is reinstanciated and EFC attepms tracking it anew so it creates duplicate tracking
+                if (await _dbVillas.GetAsync(x => updateDTO.VillaId == x.Id) == null)
+                {
+                    ModelState.AddModelError("ErrorMessages", "Villa ID is invalid");
+                    return BadRequest(ModelState);
+                }
 
-                await _dbVillas.UpdateAsync(model);
+                model = _mapper.Map<VillaNumber>(updateDTO); // when this is done object is reinstanciated and EFC attepms tracking it anew so it creates duplicate tracking
+
+                await _dbVillaNumbers.UpdateAsync(model);
                 _response.StatusCode = System.Net.HttpStatusCode.OK;
                 _response.Result = model;
 
@@ -200,13 +214,12 @@ namespace MagicVilla_VillaAPI.Controllers
             return _response;
         }
 
-        [HttpPatch("{id:int}", Name = "UpdatePartialVilla")]
-        [Authorize(Roles = "admin")] 
+
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<APIResponse>> UpdatePartialVilla(int id, JsonPatchDocument<VillaUpdateDTO> patchDTO)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPatch("{id:int}", Name = "UpdatePartialVillaNumber")]
+        public async Task<ActionResult<APIResponse>> UpdatePartialVillaNumber(int id, JsonPatchDocument<VillaNumberUpdateDTO> patchDTO)
         {
             try
             {
@@ -216,16 +229,16 @@ namespace MagicVilla_VillaAPI.Controllers
                     return BadRequest(_response);
                 }
 
-                var model = await _dbVillas.GetAsync(x => x.Id == id, false); // no tracking since the tracker will throw an error due to reinstantiating the object from tracker later
+                var model = await _dbVillaNumbers.GetAsync(x => x.VillaNo == id, false); // no tracking since the tracker will throw an error due to reinstantiating the object from tracker later
                 if (model == null)
                 {
                     _response.StatusCode = System.Net.HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
 
-                var villaDto = _mapper.Map<VillaUpdateDTO>(model);
+                VillaNumberUpdateDTO villaNumberDto = _mapper.Map<VillaNumberUpdateDTO>(model);
 
-                patchDTO.ApplyTo(villaDto, ModelState); // db model > dto > db model for the sake of JsonPatch
+                patchDTO.ApplyTo(villaNumberDto, ModelState); // db model > dto > db model for the sake of JsonPatch
 
                 if (!ModelState.IsValid)
                 {
@@ -234,9 +247,9 @@ namespace MagicVilla_VillaAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                model = _mapper.Map<Villa>(villaDto); // when this is done object is reinstanciated and EFC attepms tracking it anew so it creates duplicate tracking
+                model = _mapper.Map<VillaNumber>(villaNumberDto); // when this is done object is reinstanciated and EFC attepms tracking it anew so it creates duplicate tracking
 
-                await _dbVillas.UpdateAsync(model);
+                await _dbVillaNumbers.UpdateAsync(model);
 
                 _response.StatusCode = System.Net.HttpStatusCode.OK;
                 return Ok(_response);

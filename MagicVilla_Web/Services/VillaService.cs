@@ -9,7 +9,7 @@ namespace MagicVilla_Web.Services
     {
         private readonly IHttpClientFactory _clientFactory;
         private string _villaUrl;
-        private static string apiURLRoutePrefix = "/api/VillaAPI/";
+        private static string apiURLRoutePrefix = "/api/v1/VillaAPI/";
         public VillaService(IHttpClientFactory clientFactory, IConfiguration configuration) : base(clientFactory)
         {
             _clientFactory = clientFactory;
