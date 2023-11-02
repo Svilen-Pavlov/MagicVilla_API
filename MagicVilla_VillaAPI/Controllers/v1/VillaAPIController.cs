@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning;
 using AutoMapper;
+using MagicVilla_Utility;
 using MagicVilla_VillaAPI.Models;
 using MagicVilla_VillaAPI.Models.DTO;
 using MagicVilla_VillaAPI.Repository.IRepository;
@@ -26,13 +27,27 @@ namespace MagicVilla_VillaAPI.Controllers.v1
         }
 
         [HttpGet]
+        [ResponseCache(CacheProfileName = "Default30")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<APIResponse>> GetVillas() // All villas
+        public async Task<ActionResult<APIResponse>> GetVillas([FromQuery(Name = "filterOccupancy")]int? occupancy, [FromQuery] string? search) 
         {
             try
             {
-                IEnumerable<Villa> villaList = await _dbVillas.GetAllAsync();
+                IEnumerable<Villa> villaList;
+                if (occupancy != null) //pre DB query filter
+                {
+                   villaList = await _dbVillas.GetAllAsync(x=> x.Occupancy==occupancy);
+                }
+                else
+                {
+                    villaList = await _dbVillas.GetAllAsync();
+                }
+                if (!string.IsNullOrEmpty(search)) //post DB query filter
+                {
+                    villaList =villaList.Where(x=>x.Amenity.ToLower().Contains(search.ToLower()) || x.Name.ToLower().Contains(search.ToLower()));
+                    //returns only results containing the search term in Villa Amenity or Name
+                }
                 _response.Result = _mapper.Map<List<VillaDTO>>(villaList);
                 _response.StatusCode = System.Net.HttpStatusCode.OK;
 
@@ -47,6 +62,7 @@ namespace MagicVilla_VillaAPI.Controllers.v1
         }
 
         [HttpGet("{id:int}", Name = "GetVilla")]
+        [ResponseCache(CacheProfileName = "Default30")]
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

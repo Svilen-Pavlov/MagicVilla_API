@@ -6,6 +6,7 @@ using MagicVilla_VillaAPI.Data;
 using MagicVilla_VillaAPI.Repository;
 using MagicVilla_VillaAPI.Repository.IRepository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -38,6 +39,10 @@ builder.Services
 builder.Services.AddControllers(options =>
 {
     //options.ReturnHttpNotAcceptable = true;    // enables response of 406 codes when the type is not acceptable
+    options.CacheProfiles.Add("Default30", new CacheProfile()
+    {
+        Duration = 30
+    });
 })
     .AddNewtonsoftJson()
     .AddXmlDataContractSerializerFormatters();
@@ -125,6 +130,8 @@ builder.Services
     explorerOptions.GroupNameFormat = "'v'VVV"; //formats version as "'v'major[.minor][-status]"
     explorerOptions.SubstituteApiVersionInUrl = true; //substitutes the curly bracket formatting string with v1??? or what?
 });
+
+builder.Services.AddResponseCaching();
 
 builder.Services.AddScoped<IVillaRepository, VillaRepository>();
 builder.Services.AddScoped<IVillaNumberRepository, VillaNumberRepository>();
