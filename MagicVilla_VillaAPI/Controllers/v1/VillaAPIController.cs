@@ -1,12 +1,12 @@
 ﻿using Asp.Versioning;
 using AutoMapper;
-using MagicVilla_Utility;
 using MagicVilla_VillaAPI.Models;
 using MagicVilla_VillaAPI.Models.DTO;
 using MagicVilla_VillaAPI.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace MagicVilla_VillaAPI.Controllers.v1
 {
@@ -30,24 +30,29 @@ namespace MagicVilla_VillaAPI.Controllers.v1
         [ResponseCache(CacheProfileName = "Default30")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<APIResponse>> GetVillas([FromQuery(Name = "filterOccupancy")]int? occupancy, [FromQuery] string? search) 
+        public async Task<ActionResult<APIResponse>> GetVillas([FromQuery(Name = "filterOccupancy")]int? occupancy, [FromQuery] string? search,
+            [FromQuery] int pageSize = 0, [FromQuery] int pageNumber = 1) 
         {
             try
             {
                 IEnumerable<Villa> villaList;
                 if (occupancy != null) //pre DB query filter
                 {
-                   villaList = await _dbVillas.GetAllAsync(x=> x.Occupancy==occupancy);
+                   villaList = await _dbVillas.GetAllAsync(x=> x.Occupancy==occupancy, pageSize:pageSize, pageNumber:pageNumber);
                 }
                 else
                 {
-                    villaList = await _dbVillas.GetAllAsync();
+                    villaList = await _dbVillas.GetAllAsync(pageSize: pageSize, pageNumber: pageNumber);
                 }
                 if (!string.IsNullOrEmpty(search)) //post DB query filter
                 {
                     villaList =villaList.Where(x=>x.Amenity.ToLower().Contains(search.ToLower()) || x.Name.ToLower().Contains(search.ToLower()));
                     //returns only results containing the search term in Villa Amenity or Name
                 }
+
+                Pagination pagination = new Pagination { PageNumber=pageNumber, PageSize=pageSize };
+
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagination)); //initially required an Azure using but it dissapeared?
                 _response.Result = _mapper.Map<List<VillaDTO>>(villaList);
                 _response.StatusCode = System.Net.HttpStatusCode.OK;
 
@@ -62,7 +67,7 @@ namespace MagicVilla_VillaAPI.Controllers.v1
         }
 
         [HttpGet("{id:int}", Name = "GetVilla")]
-        [ResponseCache(CacheProfileName = "Default30")]
+        //[ResponseCache(CacheProfileName = "Default30")]
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
