@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace MagicVilla_Web.Controllers
@@ -37,9 +38,13 @@ namespace MagicVilla_Web.Controllers
             {
                 LoginResponseDTO loginResponseDTO = JsonConvert.DeserializeObject<LoginResponseDTO>(Convert.ToString(response.Result));
 
+                var handler = new JwtSecurityTokenHandler();
+                var jwt = handler.ReadJwtToken(loginResponseDTO.Token);
+
+
                 var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-                identity.AddClaim(new Claim(ClaimTypes.Name, loginResponseDTO.User.UserName));
-                identity.AddClaim(new Claim(ClaimTypes.Role, loginResponseDTO.User.Role));
+                identity.AddClaim(new Claim(ClaimTypes.Name, jwt.Claims.FirstOrDefault(x => x.Type == "unique_name").Value)); // claim type is "name" for .NET 6 and before and "unique_name" for .NET 7 and onward 
+                identity.AddClaim(new Claim(ClaimTypes.Role, jwt.Claims.FirstOrDefault(x=>x.Type=="role").Value)); //
                 var principal = new ClaimsPrincipal(identity);
                 await HttpContext.SignInAsync(principal); //lector also passes the scheme as first param, see if any diferences
 

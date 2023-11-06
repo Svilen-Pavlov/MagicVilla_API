@@ -132,7 +132,7 @@ builder.Services
     .AddApiExplorer(explorerOptions =>
 {
     explorerOptions.GroupNameFormat = "'v'VVV"; //formats version as "'v'major[.minor][-status]"
-    explorerOptions.SubstituteApiVersionInUrl = true; //substitutes the curly bracket formatting string with v1??? or what?
+    explorerOptions.SubstituteApiVersionInUrl = true; //substitutes the curly bracket formatting string with the version selected in the Select a Definition top Swagger field
 });
 
 builder.Services.AddResponseCaching();
