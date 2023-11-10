@@ -10,13 +10,15 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var key = builder.Configuration.GetValue<string>("ApiSettings:Secret"); // var to store private key
+var JWTprivateKey = builder.Configuration.GetValue<string>("ApiSettings:Secret"); // var to store private key
+var connString = builder.Configuration.GetConnectionString("DefaultSQLConnection");
 
 builder.Services
     .AddAuthentication(authOptions =>
@@ -32,7 +34,7 @@ builder.Services
     bearerOpt.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(JWTprivateKey)),
         ValidateIssuer = false,
         ValidateAudience = false
     };
@@ -117,8 +119,24 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddDbContext<ApplicationDBContext>(option =>
-    option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSQLConnection")));
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDBContext>();
+    option.UseSqlServer(connString, //configures connection string
+    sqlServerOptionsAction: builder =>
+    {
+        builder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null); //fixes transient resilliency errors when connecting to Azure DB Server
+    }));
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDBContext>();
+
+builder.Services.ConfigureApplicationCookie(options => //returns 401 instead of 404 for unauthorized requests
+{
+    options.Events.OnRedirectToLogin = context =>
+    {
+        context.Response.Headers["Location"] = context.RedirectUri;
+        context.Response.StatusCode = 401;
+        return Task.CompletedTask;
+    };
+});
 
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services
@@ -144,16 +162,24 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Magic_VillaV1");
+    options.SwaggerEndpoint("/swagger/v2/swagger.json", "Magic_VillaV2");
+});
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
+
+}
+else
+{
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Magic_VillaV1");
-        options.SwaggerEndpoint("/swagger/v2/swagger.json", "Magic_VillaV2");
+        options.RoutePrefix = string.Empty; //swagger won't run when deployed without this. Test by publishing
     });
 }
-
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

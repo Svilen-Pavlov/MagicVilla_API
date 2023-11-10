@@ -9,44 +9,45 @@ namespace MagicVilla_VillaAPI.Repository
     {
         private readonly ApplicationDBContext _db;
         internal DbSet<T> _dbSet;
+        internal IQueryable<T> _query;
 
         public Repository(ApplicationDBContext db)
         {
             _db = db;
-            //_db.VillaNumbers.Include(x => x.Villa).ToList();
             _dbSet = _db.Set<T>(); // how we establish which entity type we use
+            _query = _dbSet;
         }
 
 
         public async Task<T> GetAsync(Expression<Func<T, bool>> filter = null, bool tracked = true, string? includeProperties = null)
         {
-            IQueryable<T> query = _dbSet;
+            //IQueryable<T> _query = _dbSet;
             if (!tracked)
             {
-                query = query.AsNoTracking();
+                _query = _query.AsNoTracking();
             }
 
             if (filter != null)
             {
-                query = query.Where(filter);
+                _query = _query.Where(filter);
             }
 
             if (includeProperties != null)
             {
                 foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    query = query.Include(includeProp);
+                    _query = _query.Include(includeProp);
                 }
             }
 
-            return await query.FirstOrDefaultAsync(); // deferred execution. ToList() causes immediate execution
+            return await _query.FirstOrDefaultAsync(); // deferred execution. ToList() causes immediate execution
         }
 
         public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, int pageSize = 0, int pageNumber = 1)
         {
-            IQueryable<T> query = _dbSet;
+            //IQueryable<T> _query = _dbSet;
             if (filter != null)
-                query = query.Where(filter);
+                _query = _query.Where(filter);
 
             if (pageSize > 0)
             {
@@ -54,18 +55,24 @@ namespace MagicVilla_VillaAPI.Repository
                 {
                     pageSize = 100;
                 }
-                query = query.Skip(pageSize * (pageNumber-1)).Take(pageSize);
+                _query = _query.Skip(pageSize * (pageNumber-1)).Take(pageSize);
             }
 
             if (includeProperties != null)
             {
                 foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    query = query.Include(includeProp);
+                    _query = _query.Include(includeProp);
                 }
             }
 
-            return await query.ToListAsync(); // deferred execution. ToList() causes immediate execution
+            return await _query.ToListAsync(); // deferred execution. ToList() causes immediate execution
+        }
+
+        public async Task<int> CountAsync()
+        {
+            IQueryable<T> query = _dbSet;
+            return await query.CountAsync();
         }
 
         public async Task CreateAsync(T entity)

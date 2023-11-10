@@ -10,6 +10,9 @@ namespace MagicVilla_Web.Services
         private readonly IHttpClientFactory _clientFactory;
         private string _villaUrl;
         private static string apiURLRoutePrefix = "/api/v1/VillaAPI/";
+        private int _pageSizeDefault = 5;
+        private int _pageNumberDefault = 1;
+
         public VillaService(IHttpClientFactory clientFactory, IConfiguration configuration) : base(clientFactory)
         {
             _clientFactory = clientFactory;
@@ -20,6 +23,16 @@ namespace MagicVilla_Web.Services
             return SendAsync<T>(new APIRequest
             {
                 Url = _villaUrl + apiURLRoutePrefix,
+                ApiType = StaticDetails.ApiType.GET,
+                Token = token
+            });
+        }
+        public Task<T> GetAllAsync<T>(string token, int pageSize, int pageNumber)
+        {
+            var a = 5;
+            return SendAsync<T>(new APIRequest
+            {
+                Url = _villaUrl + apiURLRoutePrefix + "?pageSize=" + pageSize + "&pageNumber=" + pageNumber,
                 ApiType = StaticDetails.ApiType.GET,
                 Token = token
             });
@@ -65,5 +78,7 @@ namespace MagicVilla_Web.Services
                 Token = token
             });
         }
+
+       
     }
 }

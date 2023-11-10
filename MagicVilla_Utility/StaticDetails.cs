@@ -9,7 +9,7 @@
             PUT,
             DELETE
         }
-        public static string SessionToken = "JWTToken";
+        public static string SessionTokenName = "JWTToken";
         public static string JWTAuthenticationHeaderName= "Bearer";
     }
 }

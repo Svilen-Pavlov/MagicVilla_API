@@ -1,5 +1,5 @@
 ﻿@using MagicVilla_Web.Models.DTO;
-@model IEnumerable<VillaDTO>
+@model PaginatedListDTO<VillaDTO>
 <br />
 
 <div class="container p-4 border">
@@ -27,7 +27,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model)
+            @foreach (var item in Model.Items)
             {
                 <tr>
                     <td>@item.Name</td>
@@ -42,5 +42,35 @@
             }
         </tbody>
     </table>
+
+
+
+    <div class="text-center" align="center">
+        @if (Model.HasPreviousPage)
+        {
+            <a asp-action="IndexVilla" asp-controller="Villa" asp-route-pageNumber="@(Model.PageNumber-1)" class="btn btn-default">
+                Previous Page
+            </a>
+        }
+        @if (Model.HasNextPage)
+        {
+            <a asp-action="IndexVilla" asp-controller="Villa" asp-route-pageNumber="@(Model.PageNumber+1)" class="btn btn-default">
+                Next Page
+            </a>
+        }
+
+        Number of entries to display:
+        <div>
+            <form asp-action="IndexVilla" asp-controller="Villa">
+                <select name="pageSize" asp-for="@Model.PageSize" onchange="javascript:this.form.submit()">
+                    <option disabled>please choose a number</option>
+                    <option value=5>5</option>
+                    <option value=10>10</option>
+                    <option value=20>20</option>
+                    <option value=50>50</option>
+                </select>
+            </form>
+        </div>
+    </div>
 
 </div>

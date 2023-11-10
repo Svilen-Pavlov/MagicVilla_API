@@ -33,7 +33,7 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="VillaNumber" asp-action="IndexVillaNumber">Villa Number</a>
                         </li>
-                        @if (httpAcc.HttpContext.Session.GetString(StaticDetails.SessionToken) != null)
+                        @if (httpAcc.HttpContext.Session.GetString(StaticDetails.SessionTokenName) != null)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Auth" asp-action="Logout">Logout</a>
@@ -60,7 +60,7 @@
     </div>
 
     <footer class="footer text-muted">
-        <div class="container">
+        <div class="container text-center">
             &copy; 2023 - MagicVilla_Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>

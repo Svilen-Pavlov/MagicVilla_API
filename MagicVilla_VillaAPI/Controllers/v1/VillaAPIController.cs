@@ -30,29 +30,33 @@ namespace MagicVilla_VillaAPI.Controllers.v1
         [ResponseCache(CacheProfileName = "Default30")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<APIResponse>> GetVillas([FromQuery(Name = "filterOccupancy")]int? occupancy, [FromQuery] string? search,
-            [FromQuery] int pageSize = 0, [FromQuery] int pageNumber = 1) 
+        public async Task<ActionResult<APIResponse>> GetVillas([FromQuery(Name = "filterOccupancy")] int? occupancy, [FromQuery] string? search,
+            [FromQuery] int pageSize = 0, [FromQuery] int pageNumber = 1)
         {
+            //https://localhost:7001/api/v1/VillaAPI?pageSize=0&pageNumber=1
             try
             {
                 IEnumerable<Villa> villaList;
-                if (occupancy != null) //pre DB query filter
+                Pagination pagination = new Pagination { PageNumber = pageNumber, PageSize = pageSize, TotalResultsCount = 0 };
+
+                if (occupancy != null) //pre DB trip query filter
                 {
-                   villaList = await _dbVillas.GetAllAsync(x=> x.Occupancy==occupancy, pageSize:pageSize, pageNumber:pageNumber);
+                    villaList = await _dbVillas.GetAllAsync(x => x.Occupancy == occupancy, pageSize: pageSize, pageNumber: pageNumber);   //split filter and pagination 
+                    pagination.TotalResultsCount = villaList.Count();
                 }
                 else
                 {
                     villaList = await _dbVillas.GetAllAsync(pageSize: pageSize, pageNumber: pageNumber);
+                    pagination.TotalResultsCount = await _dbVillas.CountAsync();
                 }
-                if (!string.IsNullOrEmpty(search)) //post DB query filter
+
+                if (!string.IsNullOrEmpty(search)) //post DB trip query SEARCH filter, only applied to name and amenity
                 {
-                    villaList =villaList.Where(x=>x.Amenity.ToLower().Contains(search.ToLower()) || x.Name.ToLower().Contains(search.ToLower()));
-                    //returns only results containing the search term in Villa Amenity or Name
+                    villaList = villaList.Where(x => x.Amenity.ToLower().Contains(search.ToLower()) || x.Name.ToLower().Contains(search.ToLower()));
+                    pagination.TotalResultsCount = villaList.Count();
                 }
 
-                Pagination pagination = new Pagination { PageNumber=pageNumber, PageSize=pageSize };
-
-                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagination)); //initially required an Azure using but it dissapeared?
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagination)); //initially required an Azure using but after adding and removing the using it is no longer needed??
                 _response.Result = _mapper.Map<List<VillaDTO>>(villaList);
                 _response.StatusCode = System.Net.HttpStatusCode.OK;
 

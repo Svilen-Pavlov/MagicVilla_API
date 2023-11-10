@@ -2,7 +2,9 @@
 using MagicVilla_Web.Models;
 using MagicVilla_Web.Services.IServices;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
+using System.Reflection.PortableExecutable;
 using System.Text;
 
 namespace MagicVilla_Web.Services
@@ -47,25 +49,35 @@ namespace MagicVilla_Web.Services
                         break;
                 }
 
-                HttpResponseMessage apiResponse = null;
+                HttpResponseMessage apiResponseMessage = null;
 
                 if (!string.IsNullOrEmpty(apiRequest.Token))
                 {
                     client.DefaultRequestHeaders.Authorization = 
                         new AuthenticationHeaderValue(StaticDetails.JWTAuthenticationHeaderName, apiRequest.Token); // first param = "Bearer"
                 }
-                apiResponse = await client.SendAsync(message); // Send and receive response
-                var apiContent = await apiResponse.Content.ReadAsStringAsync(); // HttpResponseMessage > string (JSON formatted)
-                var responseCode = apiResponse.StatusCode; // I believe this should be here instead of what lector used below in the IF
+                apiResponseMessage = await client.SendAsync(message); // Send and receive response
+                //apiResponseMessage.Headers.TryGetValues("X-Pagination", out var paginationHeaders);
+                
+                if (apiResponseMessage.Headers.TryGetValues("X-Pagination", out var values))
+                {
+                    var deserializedPaginationHeaders = JsonConvert.DeserializeObject<Pagination>(values.First());
+
+                    var a = 5;
+                }
+                var apiContent = await apiResponseMessage.Content.ReadAsStringAsync(); // HttpResponseMessage > string (JSON formatted)
+                var responseCode = apiResponseMessage.StatusCode; // I believe this should be here instead of what lector used below in the IF
                 try // if APIContent is of type APIContent
                 {
-                    APIResponse deserializedAPIResponse = JsonConvert.DeserializeObject<APIResponse>(apiContent); // string to APIResponse type
-                    if (deserializedAPIResponse != null &&
-                        (responseCode == System.Net.HttpStatusCode.BadRequest || responseCode == System.Net.HttpStatusCode.NotFound)) //lector said this should be checking deserializedAPIResponse but it is stripped of the responseCode if erronous
+                    APIResponse APIResponse = JsonConvert.DeserializeObject<APIResponse>(apiContent); // string to APIResponse type
+
+                    //lector said this should be checking deserializedAPIResponse but it is stripped of the responseCode if erronous
+                    if (APIResponse != null &&
+                        (responseCode == System.Net.HttpStatusCode.BadRequest || responseCode == System.Net.HttpStatusCode.NotFound))
                     {
-                        deserializedAPIResponse.StatusCode = System.Net.HttpStatusCode.BadRequest;
-                        deserializedAPIResponse.IsSuccess = false;
-                        var result = JsonConvert.SerializeObject(deserializedAPIResponse);
+                        //APIResponse.StatusCode = System.Net.HttpStatusCode.BadRequest;
+                        APIResponse.IsSuccess = false;
+                        var result = JsonConvert.SerializeObject(APIResponse);
                         var returnObj = JsonConvert.DeserializeObject<T>(result);
                         return returnObj;
                     }

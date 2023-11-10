@@ -41,9 +41,7 @@ namespace MagicVilla_VillaAPI.Repository
 
         public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO)
         {
-            var user = await _db.ApplicationUsers.FirstOrDefaultAsync(x => x.UserName.ToLower() == loginRequestDTO.UserName.ToLower()
-            //&& x.Password.ToLower() == loginRequestDTO.Password.ToLower() // we dont need this when using the .NET identity user
-            );
+            var user = await _db.ApplicationUsers.FirstOrDefaultAsync(x => x.UserName.ToLower() == loginRequestDTO.UserName.ToLower());
 
             bool isValid = await _userManager.CheckPasswordAsync(user, loginRequestDTO.Password);
 
