@@ -12,5 +12,7 @@ namespace MagicVilla_Web.Models
         public List<string> ErrorMessages { get; set; }
 
         public object Result { get; set; }
+
+        public List<KeyValuePair<string, List<string>>> Headers { get; set; }
     }
 }

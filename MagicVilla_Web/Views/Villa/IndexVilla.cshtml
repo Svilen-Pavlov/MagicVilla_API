@@ -1,6 +1,5 @@
 ﻿@using MagicVilla_Web.Models.DTO;
-@model PaginatedListDTO<VillaDTO>
-<br />
+@model PaginatedListDTO;
 
 <div class="container p-4 border">
     <div class="row pb-2">
@@ -29,48 +28,19 @@
         <tbody>
             @foreach (var item in Model.Items)
             {
+                VillaDTO unboxedItem = (VillaDTO)item;
                 <tr>
-                    <td>@item.Name</td>
-                    <td>@item.Occupancy</td>
-                    <td>@((item.Rate).ToString("c"))</td>
+                    <td>@unboxedItem.Name</td>
+                    <td>@unboxedItem.Occupancy</td>
+                    <td>@((unboxedItem.Rate).ToString("c"))</td>
                     <td>
-                        <a asp-controller="Villa" asp-action="UpdateVilla" asp-route-villaId="@item.Id" class="btn btn-success"> <i class="bi bi-pencil-square"></i></a>
-                        <a asp-controller="Villa" asp-action="DeleteVilla" asp-route-villaId="@item.Id" class="btn btn-danger"> <i class="bi bi-trash-fill"></i></a>
+                        <a asp-controller="Villa" asp-action="UpdateVilla" asp-route-villaId="@unboxedItem.Id" class="btn btn-success"> <i class="bi bi-pencil-square"></i></a>
+                        <a asp-controller="Villa" asp-action="DeleteVilla" asp-route-villaId="@unboxedItem.Id" class="btn btn-danger"> <i class="bi bi-trash-fill"></i></a>
                     </td>
 
                 </tr>
             }
         </tbody>
     </table>
-
-
-
-    <div class="text-center" align="center">
-        @if (Model.HasPreviousPage)
-        {
-            <a asp-action="IndexVilla" asp-controller="Villa" asp-route-pageNumber="@(Model.PageNumber-1)" class="btn btn-default">
-                Previous Page
-            </a>
-        }
-        @if (Model.HasNextPage)
-        {
-            <a asp-action="IndexVilla" asp-controller="Villa" asp-route-pageNumber="@(Model.PageNumber+1)" class="btn btn-default">
-                Next Page
-            </a>
-        }
-
-        Number of entries to display:
-        <div>
-            <form asp-action="IndexVilla" asp-controller="Villa">
-                <select name="pageSize" asp-for="@Model.PageSize" onchange="javascript:this.form.submit()">
-                    <option disabled>please choose a number</option>
-                    <option value=5>5</option>
-                    <option value=10>10</option>
-                    <option value=20>20</option>
-                    <option value=50>50</option>
-                </select>
-            </form>
-        </div>
-    </div>
-
+    @await Html.PartialAsync("_PaginationPartial", Model)
 </div>

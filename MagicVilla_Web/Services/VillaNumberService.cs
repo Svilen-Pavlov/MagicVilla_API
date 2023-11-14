@@ -1,8 +1,9 @@
 ﻿using MagicVilla_Utility;
 using MagicVilla_Web.Models;
 using MagicVilla_Web.Models.DTO;
+using MagicVilla_Web.Services.IServices;
 
-namespace MagicVilla_Web.Services.IServices
+namespace MagicVilla_Web.Services
 {
     public class VillaNumberService : BaseService, IVillaNumberService
     {
@@ -14,11 +15,20 @@ namespace MagicVilla_Web.Services.IServices
             _clientFactory = clientFactory;
             _villaUrl = configuration.GetValue<string>("ServiceUrls:VillaAPI");
         }
-        public Task<T> GetAsync<T>(string token)
+        public Task<T> GetAllAsync<T>(string token)
         {
             return SendAsync<T>(new APIRequest
             {
                 Url = _villaUrl + apiURLRoutePrefix,
+                ApiType = StaticDetails.ApiType.GET,
+                Token = token
+            });
+        }
+        public Task<T> GetAllAsync<T>(string token, int pageSize, int pageNumber)
+        {
+            return SendAsync<T>(new APIRequest
+            {
+                Url = _villaUrl + apiURLRoutePrefix + "?pageSize=" + pageSize + "&pageNumber=" + pageNumber,
                 ApiType = StaticDetails.ApiType.GET,
                 Token = token
             });

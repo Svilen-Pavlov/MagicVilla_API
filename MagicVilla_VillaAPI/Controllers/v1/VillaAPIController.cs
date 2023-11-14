@@ -33,7 +33,6 @@ namespace MagicVilla_VillaAPI.Controllers.v1
         public async Task<ActionResult<APIResponse>> GetVillas([FromQuery(Name = "filterOccupancy")] int? occupancy, [FromQuery] string? search,
             [FromQuery] int pageSize = 0, [FromQuery] int pageNumber = 1)
         {
-            //https://localhost:7001/api/v1/VillaAPI?pageSize=0&pageNumber=1
             try
             {
                 IEnumerable<Villa> villaList;
@@ -56,7 +55,7 @@ namespace MagicVilla_VillaAPI.Controllers.v1
                     pagination.TotalResultsCount = villaList.Count();
                 }
 
-                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagination)); //initially required an Azure using but after adding and removing the using it is no longer needed??
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagination)); 
                 _response.Result = _mapper.Map<List<VillaDTO>>(villaList);
                 _response.StatusCode = System.Net.HttpStatusCode.OK;
 

@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.RateLimiting;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MagicVilla_Web.Models.DTO
 {
-    public class VillaNumberDTO
+    public class VillaNumberDTO 
     {
         [Required]
         public int VillaNo { get; set; }

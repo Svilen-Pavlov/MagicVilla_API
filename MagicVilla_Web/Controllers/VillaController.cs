@@ -26,15 +26,20 @@ namespace MagicVilla_Web.Controllers
             List<VillaDTO> list = new List<VillaDTO>();
             var response = await _villaService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(StaticDetails.SessionTokenName), pageSize, pageNumber);
 
+            var paginationHeaderValue = response.Headers.FirstOrDefault(x => x.Key == "X-Pagination").Value[0];
+
+            var pagination = JsonConvert.DeserializeObject<Pagination>(paginationHeaderValue);
+
             if (response != null && response.IsSuccess)
             {
                 list = JsonConvert.DeserializeObject<List<VillaDTO>>(Convert.ToString(response.Result));
             }
-            var paginatedResults = new PaginatedListDTO<VillaDTO>(list, list.Count, pageNumber, pageSize); // fix this for total results
+            var paginatedResults = new PaginatedListDTO(list, pagination.TotalResultsCount, pageNumber, pageSize);
 
             return await Task.Run(() => View(paginatedResults));
         }
 
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> CreateVilla()
         {
             return await Task.Run(() => View());

@@ -1,5 +1,5 @@
 ﻿@using MagicVilla_Web.Models.DTO;
-@model IEnumerable<VillaNumberDTO>
+@model PaginatedListDTO
 <br />
 
 <div class="container p-4 border">
@@ -27,20 +27,21 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model)
+            @foreach (var item in Model.Items)
             {
+                VillaNumberDTO unboxedItem = (VillaNumberDTO)item;
                 <tr>
-                    <td>@item.Villa.Name</td>
-                    <td>@item.Villa.Id</td>
-                    <td>@item.VillaNo</td>
+                    <td>@unboxedItem.Villa.Name</td>
+                    <td>@unboxedItem.Villa.Id</td>
+                    <td>@unboxedItem.VillaNo</td>
                     <td>
-                        <a asp-controller="VillaNumber" asp-action="UpdateVillaNumber" asp-route-villaNo="@item.VillaNo" class="btn btn-success"> <i class="bi bi-pencil-square"></i></a>
-                        <a asp-controller="VillaNumber" asp-action="DeleteVillaNumber" asp-route-villaNo="@item.VillaNo" class="btn btn-danger"> <i class="bi bi-trash-fill"></i></a>
+                        <a asp-controller="VillaNumber" asp-action="UpdateVillaNumber" asp-route-villaNo="@unboxedItem.VillaNo" class="btn btn-success"> <i class="bi bi-pencil-square"></i></a>
+                        <a asp-controller="VillaNumber" asp-action="DeleteVillaNumber" asp-route-villaNo="@unboxedItem.VillaNo" class="btn btn-danger"> <i class="bi bi-trash-fill"></i></a>
                     </td>
 
                 </tr>
             }
         </tbody>
     </table>
-
+    @await Html.PartialAsync("_PaginationPartial", Model)
 </div>

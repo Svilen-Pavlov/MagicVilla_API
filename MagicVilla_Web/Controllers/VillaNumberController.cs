@@ -23,17 +23,23 @@ namespace MagicVilla_Web.Controllers
             this._villaNumberService = villaNumberService;
             this._villaService = villaService;
         }
-        public async Task<IActionResult> IndexVillaNumber()
+        public async Task<IActionResult> IndexVillaNumber(int pageSize = 5, int pageNumber = 1)
         {
             List<VillaNumberDTO> list = new List<VillaNumberDTO>();
 
-            var response = await _villaNumberService.GetAsync<APIResponse>(HttpContext.Session.GetString(StaticDetails.SessionTokenName));
+            var response = await _villaNumberService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(StaticDetails.SessionTokenName), pageSize, pageNumber);
+            var paginationHeaderValue = response.Headers.FirstOrDefault(x => x.Key == "X-Pagination").Value[0];
+
+            var pagination = JsonConvert.DeserializeObject<Pagination>(paginationHeaderValue);
+
             if (response != null && response.IsSuccess)
             {
                 list = JsonConvert.DeserializeObject<List<VillaNumberDTO>>(Convert.ToString(response.Result));
             }
 
-            return await Task.Run(() => View(list));
+            var paginatedResults = new PaginatedListDTO(list, pagination.TotalResultsCount, pageNumber, pageSize);
+
+            return await Task.Run(() => View(paginatedResults));
         }
 
         [Authorize(Roles = "admin")]

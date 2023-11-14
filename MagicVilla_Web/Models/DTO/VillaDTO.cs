@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.RateLimiting;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MagicVilla_Web.Models.DTO
 {

@@ -6,6 +6,7 @@ using MagicVilla_VillaAPI.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace MagicVilla_VillaAPI.Controllers.v1
 {
@@ -35,11 +36,25 @@ namespace MagicVilla_VillaAPI.Controllers.v1
 
         [HttpGet]
         //[MapToApiVersion("1.0")]
-        public async Task<ActionResult<APIResponse>> GetVillaNumbers()
+        public async Task<ActionResult<APIResponse>> GetVillaNumbers([FromQuery] string? search,
+            [FromQuery] int pageSize = 0, [FromQuery] int pageNumber = 1)
         {
             try
             {
-                IEnumerable<VillaNumber> villaNumberList = await _dbVillaNumbers.GetAllAsync(includeProperties: "Villa");
+                IEnumerable<VillaNumber> villaNumberList;
+                Pagination pagination = new Pagination { PageNumber = pageNumber, PageSize = pageSize, TotalResultsCount = 0 };
+                if (search != null)
+                {
+                    villaNumberList = await _dbVillaNumbers.GetAllAsync(x=>x.Villa.Name.ToLower().Contains(search),includeProperties: "Villa", pageSize: pageSize, pageNumber: pageNumber);
+                    pagination.TotalResultsCount = await _dbVillaNumbers.CountAsync();
+                }
+                else
+                {
+                    villaNumberList = await _dbVillaNumbers.GetAllAsync(includeProperties: "Villa", pageSize:pageSize,pageNumber:pageNumber);
+                    pagination.TotalResultsCount = villaNumberList.Count();
+                }
+
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagination));
                 _response.Result = _mapper.Map<List<VillaNumberDTO>>(villaNumberList);
                 _response.StatusCode = System.Net.HttpStatusCode.OK;
 

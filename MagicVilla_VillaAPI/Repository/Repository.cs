@@ -18,10 +18,8 @@ namespace MagicVilla_VillaAPI.Repository
             _query = _dbSet;
         }
 
-
         public async Task<T> GetAsync(Expression<Func<T, bool>> filter = null, bool tracked = true, string? includeProperties = null)
         {
-            //IQueryable<T> _query = _dbSet;
             if (!tracked)
             {
                 _query = _query.AsNoTracking();
@@ -45,7 +43,6 @@ namespace MagicVilla_VillaAPI.Repository
 
         public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, int pageSize = 0, int pageNumber = 1)
         {
-            //IQueryable<T> _query = _dbSet;
             if (filter != null)
                 _query = _query.Where(filter);
 
@@ -86,7 +83,6 @@ namespace MagicVilla_VillaAPI.Repository
             _dbSet.Remove(entity);
             await SaveAsync();
         }
-
 
         public async Task SaveAsync()
         {

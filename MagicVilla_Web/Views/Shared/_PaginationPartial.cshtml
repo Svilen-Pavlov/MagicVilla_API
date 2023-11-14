@@ -1,0 +1,69 @@
+﻿@using MagicVilla_Web.Models.DTO;
+
+@model PaginatedListDTO;
+
+<div class="row justify-content-between align-items-center">
+    <div class="col-auto">
+        @if (Model.HasPreviousPage)
+        {
+            <a asp-action="IndexVilla" asp-controller="Villa" asp-route-pageNumber="1" class="btn btn-default">
+                First Page
+            </a>
+        }
+    </div>
+
+    <div class="col-auto">
+        @if (Model.HasPreviousPage)
+        {
+            <a asp-action="IndexVilla" asp-controller="Villa" asp-route-pageNumber="@(Model.PageNumber-1)" class="btn btn-default">
+                Previous Page
+            </a>
+        }
+    </div>
+    <div class="col-auto">
+        @if (Model.HasNextPage)
+        {
+            <a asp-action="IndexVilla" asp-controller="Villa" asp-route-pageNumber="@(Model.PageNumber+1)" class="btn btn-default">
+                Next Page
+            </a>
+        }
+    </div>
+    <div class="col-auto">
+        @if (Model.HasNextPage)
+        {
+            <a asp-action="IndexVilla" asp-controller="Villa" asp-route-pageNumber="@(Model.TotalPages)" class="btn btn-default">
+                Last Page
+            </a>
+        }
+    </div>
+</div>
+
+<div class="row justify-content-center mt-3">
+    <div class="col-auto">
+        <div class="d-flex align-items-center">
+            <span class="mr-3">Results per page:</span>&nbsp;&nbsp;
+            <form asp-action="IndexVilla" asp-controller="Villa">
+                <select name="pageSize" asp-for="@Model.PageSize" onchange="javascript:this.form.submit()" class="form-select" style="width: 6em;">
+                    <option disabled>Choose...</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
+            </form>
+        </div>
+    </div>
+    <div class="col-auto d-flex align-items-center">
+        @if (Model.Items.Any())
+        {
+            <div class="align-self-center">
+                Displaying results @((Model.PageNumber - 1) * Model.PageSize + 1) to
+                @((Model.PageNumber - 1) * Model.PageSize + Model.Items.Count()) of @Model.EntriesCount
+            </div>
+        }
+        else
+        {
+            <span>No entries to display</span>
+        }
+    </div>
+</div>
