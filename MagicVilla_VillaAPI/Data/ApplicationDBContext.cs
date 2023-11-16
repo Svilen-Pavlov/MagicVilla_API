@@ -1,10 +1,13 @@
-﻿using MagicVilla_VillaAPI.Models;
+﻿using Asp.Versioning;
+using MagicVilla_VillaAPI.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 
 namespace MagicVilla_VillaAPI.Data
 {
-    public class ApplicationDBContext: IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext: IdentityDbContext<ApplicationUser>
     {
 
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
@@ -12,14 +15,19 @@ namespace MagicVilla_VillaAPI.Data
         public DbSet<Villa> Villas { get; set; }
         public DbSet<VillaNumber> VillaNumbers { get; set; }
 
-        public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options) : base(options)
-        {    
-            
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        {
+           
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            SeedVillas(modelBuilder);
+        }
+
+        private void SeedVillas(ModelBuilder modelBuilder)
+        {
             modelBuilder.Entity<Villa>().HasData(
                 new Villa
                 {
@@ -31,7 +39,7 @@ namespace MagicVilla_VillaAPI.Data
                     Rate = 200,
                     Sqft = 550,
                     Amenity = "",
-                    CreatedDate= DateTime.Now
+                    CreatedDate = DateTime.Now
                 },
               new Villa
               {
@@ -81,8 +89,6 @@ namespace MagicVilla_VillaAPI.Data
                   Amenity = "",
                   CreatedDate = DateTime.Now
               });
-
         }
-
     }
 }

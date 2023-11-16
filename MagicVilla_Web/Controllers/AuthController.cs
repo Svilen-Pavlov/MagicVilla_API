@@ -83,7 +83,7 @@ namespace MagicVilla_Web.Controllers
         {
             await HttpContext.SignOutAsync();
             HttpContext.Session.Clear();
-            //HttpContext.Session.SetString(StaticDetails.SessionToken, string.Empty); //used by author
+            //HttpContext.Session.SetString(StaticDetails.SessionToken, string.Empty); //used by author, otherwise it is null
             return await Task.Run(() => RedirectToAction("Index","Home"));
         }
 

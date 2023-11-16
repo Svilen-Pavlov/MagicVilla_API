@@ -15,13 +15,13 @@ namespace MagicVilla_VillaAPI.Repository
 {
     public class UserRepository : IUserRepository
     {
-        private readonly ApplicationDBContext _db;
+        private readonly ApplicationDbContext _db;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IMapper _mapper;
         private string _secretKey;
 
-        public UserRepository(ApplicationDBContext db, IMapper mapper, IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public UserRepository(ApplicationDbContext db, IMapper mapper, IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _roleManager = roleManager;
             _userManager = userManager;
@@ -100,13 +100,7 @@ namespace MagicVilla_VillaAPI.Repository
                 var result = await _userManager.CreateAsync(user, registrationRequestDTO.Password); //creastes user and hashes pass
                 if (result.Succeeded)
                 {
-                    if (await _roleManager.RoleExistsAsync("admin")==false)
-                    {
-                        await _roleManager.CreateAsync(new IdentityRole("admin")); //seed roles for the first time
-                        await _roleManager.CreateAsync(new IdentityRole("customer"));
-                    }
-
-                    await _userManager.AddToRoleAsync(user, "admin");
+                    await _userManager.AddToRoleAsync(user, "admin"); //all users get admin role
                     var userToReturn = _db.ApplicationUsers.FirstOrDefault(x=>x.UserName== registrationRequestDTO.UserName);
                     return _mapper.Map<UserDTO>(userToReturn);
                 }

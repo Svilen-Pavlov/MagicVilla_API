@@ -8,9 +8,9 @@ namespace MagicVilla_VillaAPI.Repository
 {
     public class VillaRepository : Repository<Villa>, IVillaRepository
     {
-        private readonly ApplicationDBContext _db;
+        private readonly ApplicationDbContext _db;
 
-        public VillaRepository(ApplicationDBContext db) : base(db)
+        public VillaRepository(ApplicationDbContext db) : base(db)
         {
             _db = db;
         }

@@ -3,6 +3,7 @@ using Asp.Versioning;
 using MagicVilla_Utility;
 using MagicVilla_VillaAPI;
 using MagicVilla_VillaAPI.Data;
+using MagicVilla_VillaAPI.Data.Seeders;
 using MagicVilla_VillaAPI.Models;
 using MagicVilla_VillaAPI.Repository;
 using MagicVilla_VillaAPI.Repository.IRepository;
@@ -17,7 +18,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var JWTprivateKey = builder.Configuration.GetValue<string>("ApiSettings:Secret"); // var to store private key
+var JWTprivateKey = builder.Configuration.GetValue<string>("ApiSettings:Secret");
 var connString = builder.Configuration.GetConnectionString("DefaultSQLConnection");
 
 builder.Services
@@ -118,7 +119,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddDbContext<ApplicationDBContext>(option =>
+builder.Services.AddDbContext<ApplicationDbContext>(option =>
     option.UseSqlServer(connString, //configures connection string
     sqlServerOptionsAction: builder =>
     {
@@ -126,7 +127,8 @@ builder.Services.AddDbContext<ApplicationDBContext>(option =>
     }));
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDBContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
 
 builder.Services.ConfigureApplicationCookie(options => //returns 401 instead of 404 for unauthorized requests
 {
@@ -160,8 +162,8 @@ builder.Services.AddScoped<IVillaNumberRepository, VillaNumberRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();
+await RoleSeeder.Initialize(app.Services);
 
-// Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
@@ -186,5 +188,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
 
 app.Run();

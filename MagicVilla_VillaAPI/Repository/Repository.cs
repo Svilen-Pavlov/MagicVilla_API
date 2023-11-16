@@ -7,11 +7,11 @@ namespace MagicVilla_VillaAPI.Repository
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        private readonly ApplicationDBContext _db;
+        private readonly ApplicationDbContext _db;
         internal DbSet<T> _dbSet;
         internal IQueryable<T> _query;
 
-        public Repository(ApplicationDBContext db)
+        public Repository(ApplicationDbContext db)
         {
             _db = db;
             _dbSet = _db.Set<T>(); // how we establish which entity type we use
