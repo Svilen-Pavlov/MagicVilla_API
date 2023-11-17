@@ -1,0 +1,21 @@
+﻿@using MagicVilla_Web.Models.DTO;
+@using System.Text.RegularExpressions;
+
+@model PaginatedListDTO;
+
+@{
+    string mainViewName = ViewContext.ActionDescriptor.DisplayName;
+    string pattern = @"(?<Controller>\w+)Controller\.(?<Action>\w+)\s*\(.+";
+    Match match = Regex.Match(mainViewName, pattern);
+    string controllerName = match.Groups["Controller"].Value;
+    string actionName = match.Groups["Action"].Value;
+}
+
+<div class="col">
+    <form asp-controller=@controllerName asp-action=@actionName asp-route-search="" class="form-inline">
+        <div class="input-group">
+            <input type="text" name="searchString" class="form-control" placeholder="Search..." value="@Model.SearchString" />
+            <button type="submit" class="btn btn-outline-secondary">Search</button>
+        </div>
+    </form>
+</div>

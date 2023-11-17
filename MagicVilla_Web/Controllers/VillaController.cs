@@ -21,10 +21,10 @@ namespace MagicVilla_Web.Controllers
             this._mapper = mapper;
             this._villaService = villaService;
         }
-        public async Task<IActionResult> IndexVilla(int pageSize = 5, int pageNumber = 1)
+        public async Task<IActionResult> IndexVilla(int pageSize = 5, int pageNumber = 1, string searchString = "")
         {
             List<VillaDTO> list = new List<VillaDTO>();
-            var response = await _villaService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(StaticDetails.SessionTokenName), pageSize, pageNumber);
+            var response = await _villaService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(StaticDetails.SessionTokenName), pageSize, pageNumber, searchString);
 
             var paginationHeaderValue = response.Headers.FirstOrDefault(x => x.Key == "X-Pagination").Value[0];
 
@@ -34,7 +34,7 @@ namespace MagicVilla_Web.Controllers
             {
                 list = JsonConvert.DeserializeObject<List<VillaDTO>>(Convert.ToString(response.Result));
             }
-            var paginatedResults = new PaginatedListDTO(list, pagination.TotalResultsCount, pageNumber, pageSize);
+            var paginatedResults = new PaginatedListDTO(list, pagination.TotalResultsCount, pageNumber, pageSize, searchString);
 
             return await Task.Run(() => View(paginatedResults));
         }

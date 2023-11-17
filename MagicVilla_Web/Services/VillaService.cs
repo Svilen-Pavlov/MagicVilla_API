@@ -25,11 +25,12 @@ namespace MagicVilla_Web.Services
                 Token = token
             });
         }
-        public Task<T> GetAllAsync<T>(string token, int pageSize, int pageNumber)
+        public Task<T> GetAllAsync<T>(string token, int pageSize, int pageNumber, string searchString)
         {
+            var searchParam = string.IsNullOrEmpty(searchString) ? "" : "&searchString=" + searchString;
             return SendAsync<T>(new APIRequest
             {
-                Url = _villaUrl + apiURLRoutePrefix + "?pageSize=" + pageSize + "&pageNumber=" + pageNumber,
+                Url = _villaUrl + apiURLRoutePrefix + "?pageSize=" + pageSize + "&pageNumber=" + pageNumber + searchParam,
                 ApiType = StaticDetails.ApiType.GET,
                 Token = token
             });

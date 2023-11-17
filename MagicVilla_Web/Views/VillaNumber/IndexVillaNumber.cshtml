@@ -7,6 +7,7 @@
         <div class="col">
             <h1 class="text-primary">Villa Number List</h1>
         </div>
+        @await Html.PartialAsync("_SearchPartial", Model)
         <div class="col text-end pt-1">
             <a asp-controller="VillaNumber" asp-action="CreateVillaNumber" class="btn btn-outline-primary"> <i class="bi bi-plus-square-fill"></i> <i> Create New Villa Number</i></a>
         </div>
@@ -34,7 +35,7 @@
                     <td>@unboxedItem.Villa.Name</td>
                     <td>@unboxedItem.Villa.Id</td>
                     <td>@unboxedItem.VillaNo</td>
-                    <td>
+                    <td style="border-bottom: none;">
                         <a asp-controller="VillaNumber" asp-action="UpdateVillaNumber" asp-route-villaNo="@unboxedItem.VillaNo" class="btn btn-success"> <i class="bi bi-pencil-square"></i></a>
                         <a asp-controller="VillaNumber" asp-action="DeleteVillaNumber" asp-route-villaNo="@unboxedItem.VillaNo" class="btn btn-danger"> <i class="bi bi-trash-fill"></i></a>
                     </td>

@@ -59,7 +59,7 @@ namespace MagicVilla_VillaAPI.Controllers
             }
 
             _response.StatusCode = System.Net.HttpStatusCode.OK;
-            return Ok(_response); // we only pass a confirmation message not the user itself
+            return Ok(_response);
         }
     }
 }

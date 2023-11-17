@@ -57,6 +57,7 @@ namespace MagicVilla_Web.Services
                     client.DefaultRequestHeaders.Authorization =
                         new AuthenticationHeaderValue(StaticDetails.JWTAuthenticationHeaderName, apiRequest.Token); // first param = "Bearer"
                 }
+                
                 apiResponseMessage = await client.SendAsync(message); // Send and receive response
                 var content = await apiResponseMessage.Content.ReadAsStringAsync(); // HttpResponseMessage > string (JSON formatted)
                 var headers = apiResponseMessage.Headers.AsEnumerable().ToList();

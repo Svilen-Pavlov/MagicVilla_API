@@ -1,14 +1,9 @@
-﻿using MagicVilla_VillaAPI.Models;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace MagicVilla_VillaAPI.Data.Seeders
 {
     public class RoleSeeder
     {
-  
-
-
         public static async Task Initialize(IServiceProvider serviceProvider)
         {
             using (var scope = serviceProvider.CreateScope())

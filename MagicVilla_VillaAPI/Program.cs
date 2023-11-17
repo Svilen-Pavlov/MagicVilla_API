@@ -120,7 +120,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddDbContext<ApplicationDbContext>(option =>
-    option.UseSqlServer(connString, //configures connection string
+    option.UseSqlServer(connString,
     sqlServerOptionsAction: builder =>
     {
         builder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null); //fixes transient resilliency errors when connecting to Azure DB Server
@@ -162,7 +162,7 @@ builder.Services.AddScoped<IVillaNumberRepository, VillaNumberRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();
-await RoleSeeder.Initialize(app.Services);
+await RoleSeeder.Initialize(app.Services); //Seeds roles
 
 app.UseSwagger();
 app.UseSwaggerUI(options =>

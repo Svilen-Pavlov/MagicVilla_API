@@ -30,7 +30,7 @@ namespace MagicVilla_VillaAPI.Controllers.v1
         [ResponseCache(CacheProfileName = "Default30")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<APIResponse>> GetVillas([FromQuery(Name = "filterOccupancy")] int? occupancy, [FromQuery] string? search,
+        public async Task<ActionResult<APIResponse>> GetVillas([FromQuery(Name = "filterOccupancy")] int? occupancy, [FromQuery] string? searchString,
             [FromQuery] int pageSize = 0, [FromQuery] int pageNumber = 1)
         {
             try
@@ -38,9 +38,9 @@ namespace MagicVilla_VillaAPI.Controllers.v1
                 IEnumerable<Villa> villaList;
                 Pagination pagination = new Pagination { PageNumber = pageNumber, PageSize = pageSize, TotalResultsCount = 0 };
 
-                if (occupancy != null) //pre DB trip query filter
+                if (occupancy != null)
                 {
-                    villaList = await _dbVillas.GetAllAsync(x => x.Occupancy == occupancy, pageSize: pageSize, pageNumber: pageNumber);   //split filter and pagination 
+                    villaList = await _dbVillas.GetAllAsync(x => x.Occupancy == occupancy, pageSize: pageSize, pageNumber: pageNumber);   //split filters and pagination 
                     pagination.TotalResultsCount = villaList.Count();
                 }
                 else
@@ -49,9 +49,9 @@ namespace MagicVilla_VillaAPI.Controllers.v1
                     pagination.TotalResultsCount = await _dbVillas.CountAsync();
                 }
 
-                if (!string.IsNullOrEmpty(search)) //post DB trip query SEARCH filter, only applied to name and amenity
+                if (!string.IsNullOrEmpty(searchString)) //post DB trip query SEARCH filter, only applied to name and amenity
                 {
-                    villaList = villaList.Where(x => x.Amenity.ToLower().Contains(search.ToLower()) || x.Name.ToLower().Contains(search.ToLower()));
+                    villaList = villaList.Where(x => x.Amenity.ToLower().Contains(searchString.ToLower()) || x.Name.ToLower().Contains(searchString.ToLower()));
                     pagination.TotalResultsCount = villaList.Count();
                 }
 

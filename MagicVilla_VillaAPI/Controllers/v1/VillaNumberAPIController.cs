@@ -27,7 +27,7 @@ namespace MagicVilla_VillaAPI.Controllers.v1
             _mapper = mapper;
             _response = new();
         }
-        
+
         [HttpGet("GetString")]
         public IEnumerable<string> Get()
         {
@@ -36,23 +36,23 @@ namespace MagicVilla_VillaAPI.Controllers.v1
 
         [HttpGet]
         //[MapToApiVersion("1.0")]
-        public async Task<ActionResult<APIResponse>> GetVillaNumbers([FromQuery] string? search,
+        public async Task<ActionResult<APIResponse>> GetVillaNumbers([FromQuery] string? searchString,
             [FromQuery] int pageSize = 0, [FromQuery] int pageNumber = 1)
         {
             try
             {
                 IEnumerable<VillaNumber> villaNumberList;
                 Pagination pagination = new Pagination { PageNumber = pageNumber, PageSize = pageSize, TotalResultsCount = 0 };
-                if (search != null)
+                if (searchString != null)
                 {
-                    villaNumberList = await _dbVillaNumbers.GetAllAsync(x=>x.Villa.Name.ToLower().Contains(search),includeProperties: "Villa", pageSize: pageSize, pageNumber: pageNumber);
-                    pagination.TotalResultsCount = await _dbVillaNumbers.CountAsync();
+                    villaNumberList = await _dbVillaNumbers.GetAllAsync(x => x.Villa.Name.ToLower().Contains(searchString), includeProperties: "Villa", pageSize: pageSize, pageNumber: pageNumber);
                 }
                 else
                 {
-                    villaNumberList = await _dbVillaNumbers.GetAllAsync(includeProperties: "Villa", pageSize:pageSize,pageNumber:pageNumber);
-                    pagination.TotalResultsCount = villaNumberList.Count();
+                    villaNumberList = await _dbVillaNumbers.GetAllAsync(includeProperties: "Villa", pageSize: pageSize, pageNumber: pageNumber);
                 }
+
+                pagination.TotalResultsCount = villaNumberList.Count(); //if filters are added mirror VillaController approach
 
                 Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagination));
                 _response.Result = _mapper.Map<List<VillaNumberDTO>>(villaNumberList);
